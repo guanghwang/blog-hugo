@@ -1,0 +1,42 @@
+---
+title: "Coercing the class of ifelse results"
+author: "Guanghua Wang"
+date: 2017-02-17T18:00:00
+category: ["R Learning Notes"]
+tag: ["R Dplyr", "R class"]
+---
+
+<!-- BLOGDOWN-HEAD -->
+
+
+
+<!-- /BLOGDOWN-HEAD -->
+
+<!-- BLOGDOWN-BODY-BEFORE -->
+
+<!-- /BLOGDOWN-BODY-BEFORE -->
+
+<p><code>base::ifelse</code> returns <code>NA</code> to the logical type <code>NA</code>. It makes data manipulation problematic when we generate a new variable by <code>ifelse</code> from the existing varialbes with <code>NA</code>s. The following example gives an idea how the class of <code>ifelse</code> resutls changes.</p>
+<pre class="r"><code>test_fn &lt;- function(x){
+  ifelse(x &gt; 0,
+         &quot;Positive&quot;,
+         &quot;Not positive&quot;)
+}
+class(test_fn(1))</code></pre>
+<pre><code>## [1] &quot;character&quot;</code></pre>
+<pre class="r"><code>class(test_fn(NA))</code></pre>
+<pre><code>## [1] &quot;logical&quot;</code></pre>
+<p>To avoid this problem, we have two solutions:</p>
+<ol style="list-style-type: decimal">
+<li>coerce the class explicitly</li>
+<li>Use <code>dplyr::if_else</code></li>
+</ol>
+<pre class="r"><code>test_fn2 &lt;- function(x){
+  dplyr::if_else(x &gt; 0,
+         &quot;Positive&quot;,
+         &quot;Not positive&quot;)
+}
+class(test_fn2(1))</code></pre>
+<pre><code>## [1] &quot;character&quot;</code></pre>
+<pre class="r"><code>class(test_fn2(NA))</code></pre>
+<pre><code>## [1] &quot;character&quot;</code></pre>

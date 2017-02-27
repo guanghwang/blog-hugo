@@ -1,0 +1,32 @@
+---
+title: "Coerce the class of ifelse results"
+author: "Guanghua Wang"
+date: "February 17, 2017"
+output: html_document
+---
+
+<!-- BLOGDOWN-HEAD -->
+
+
+
+<!-- /BLOGDOWN-HEAD -->
+
+<!-- BLOGDOWN-BODY-BEFORE -->
+
+<!-- /BLOGDOWN-BODY-BEFORE -->
+
+<p><code>ifelse</code> returns <code>NA</code> to the logical type. It makes data manipulation problematic when we generate a new variable by <code>ifelse</code> and some existing varialbes which contain <code>NA</code>s. The following example gives an idea how the class of <code>ifelse</code> changes.</p>
+<pre class="r"><code>test_fn &lt;- function(x){
+  ifelse(x &gt; 0,
+         &quot;Positive&quot;,
+         &quot;Not positive&quot;)
+}
+class(test_fn(1))</code></pre>
+<pre><code>## [1] &quot;character&quot;</code></pre>
+<pre class="r"><code>class(test_fn(NA))</code></pre>
+<pre><code>## [1] &quot;logical&quot;</code></pre>
+<p>To avoid this problem, we have two solutions:</p>
+<ol style="list-style-type: decimal">
+<li>coerce the class explicitly</li>
+<li>Use <code>dplyr::if_else</code></li>
+</ol>
