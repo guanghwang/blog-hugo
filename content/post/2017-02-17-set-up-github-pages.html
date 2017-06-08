@@ -1,0 +1,117 @@
+---
+title: "Hosting pages on Github using Rmarkdown and Hugo"
+author: "Guanghua Wang"
+date: 2017-02-18T20:50:00
+categories: ["Tech"]
+tags: ["R","R Markdown","R Blogdown", "Hugo", "github"]
+summary: "My personal website is created by R package `blogdown` and `Hugo` and is hosted on Github. This page summarise my steps to create this site."
+---
+
+
+
+
+
+<!-- BLOGDOWN-BODY-BEFORE -->
+
+<!-- /BLOGDOWN-BODY-BEFORE -->
+
+<p>My personal website is created by R package <code>blogdown</code> and <code>Hugo</code><a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> and is hosted on Github. This page summarise my steps to setup the site.</p>
+<div id="creating-github-repositories" class="section level1">
+<h1>Creating github repositories</h1>
+<p>Two respositories are needed for the site.</p>
+<ol style="list-style-type: decimal">
+<li><p>I create <code>blog_hugo</code> to host Hugo’s content)</p></li>
+<li><p>I create <code>&lt;my-user-name&gt;.github.io</code> to host the public folder, which contains the static website.</p></li>
+</ol>
+</div>
+<div id="installing-blogdown-and-hugo" class="section level1">
+<h1>Installing Blogdown and Hugo</h1>
+<div id="install-blogdown." class="section level2">
+<h2>Install <a href="https://github.com/rstudio/blogdown">blogdown</a>.</h2>
+<p>It is under heavy development when I write this blog.</p>
+<pre class="r"><code># check devetolls
+if (!(&quot;devtools&quot; %in% installed.packages())) {
+  install.packages(&quot;devtools&quot;)
+}
+devtools::install_github(&#39;rstudio/blogdown&#39;)</code></pre>
+</div>
+<div id="install-hugo" class="section level2">
+<h2>Install <a href="https://gohugo.io/">Hugo</a></h2>
+<p>As I use Deepin Linux, a debain-based distro, I install <code>Hugo</code> via <code>apt</code> package manager. For other installment choices, read the <a href="https://gohugo.io/overview/installing/">Hugo installation instructions</a>.</p>
+<pre><code>sudo apt install hugo</code></pre>
+<p>However, the Hugo in the repository is updated and it does not work for most templates. I manually download its deb package from <a href="https://github.com/spf13/hugo/releases">the release page</a> and install it.</p>
+</div>
+</div>
+<div id="creating-the-site" class="section level1">
+<h1>Creating the Site</h1>
+<div id="creating-a-rproject-of-my-new-site" class="section level2">
+<h2>Creating a Rproject of my new site</h2>
+<ol style="list-style-type: decimal">
+<li>Clone <code>blog_hugo</code> to my computer</li>
+</ol>
+<pre class="bash"><code>cd &lt;parent-folder-of-blog_hugo&gt;
+git clone &lt;my-blog-hugo-repository&gt; &amp;&amp; cd blog_hugo</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li>Create a Rproject based on the existing folder <code>blog_hugo</code>. It is a R project with the git system by default.</li>
+</ol>
+</div>
+<div id="creating-a-new-site" class="section level2">
+<h2>Creating a new site</h2>
+<ol style="list-style-type: decimal">
+<li>Pick a Hugo theme from <a href="http://themes.gohugo.io" class="uri">http://themes.gohugo.io</a>. I use <strong>Academic</strong> for my site.</li>
+<li>Creating a new site</li>
+</ol>
+<pre class="r"><code>blogdown::new_site(dir = &quot;.&quot;, theme = &quot;gcushen/hugo-academic&quot;)</code></pre>
+</div>
+</div>
+<div id="hosting-the-site-on-github" class="section level1">
+<h1>Hosting the Site on Github</h1>
+<p>Use the <a href="https://gist.github.com/gitaarik/8735255">submodule</a> to sync my local sites(the public folder) with <code>&lt;my-user-name&gt;.github.io</code></p>
+<pre class="bash"><code>git submodule add -b master git@github.com:&lt;&lt;my-user-name&gt;/&lt;my-user-name&gt;.github.io.git public</code></pre>
+<p>As <code>SSH</code> is used to sync with Github, I need to create my own private key pair set in advance.</p>
+<pre><code>cd ~/.ssh &amp;&amp; ssh-keygen
+cat id_rsa.pub</code></pre>
+<p>Then, we copy the key to our github account via the website. More information can be found <a href="http://stackoverflow.com/questions/2643502/git-permission-denied-publickey">here</a></p>
+</div>
+<div id="creating-scripts" class="section level1">
+<h1>Creating Scripts</h1>
+<p>Add a <code>serve_site.R</code> script in <code>blog_hugo</code> folder to generate static sites in case Rstudio is not running.</p>
+<pre><code>#!/usr/bin/Rscript
+blogdown::serve_site()</code></pre>
+<p>Add a <code>deploy.sh</code> script in <code>blog_hugo</code> foler to sync the site (and make it executable: <code>chmod +x deploy.sh</code>)</p>
+<pre><code># Go To Public folder
+cd public
+# Add changes to git.
+git add -A
+
+# Commit changes.
+msg=&quot;rebuilding site `date`&quot;
+if [ $# -eq 1 ]
+  then msg=&quot;$1&quot;
+fi
+git commit -m &quot;$msg&quot;
+
+# Push source and build repos.
+git push origin master
+
+# Come Back
+cd ..</code></pre>
+</div>
+<div id="the-last-step" class="section level1">
+<h1>The Last Step</h1>
+<p>Modify the theme as we like and enjoy the new site.</p>
+</div>
+<div id="reference" class="section level1">
+<h1>Reference</h1>
+<ol style="list-style-type: decimal">
+<li><p><a href="https://gohugo.io/tutorials/github-pages-blog/">Hosting on Github Pages</a></p></li>
+<li><p><a href="https://github.com/rstudio/blogdown">blogdown</a></p></li>
+<li><p><a href="https://github.com/gcushen/hugo-academic">hugo-academic</a></p></li>
+</ol>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><code>Hugo</code> can be used to hosting other types of pages on Github. More information can be found on <a href="https://gohugo.io/tutorials/github-pages-blog/">its website</a><a href="#fnref1">↩</a></p></li>
+</ol>
+</div>

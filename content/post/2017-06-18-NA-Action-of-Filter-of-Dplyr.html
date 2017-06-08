@@ -1,0 +1,46 @@
+---
+title: "NA Action of Filter of Dplyr"
+author: "Guanghua Wang"
+date: 2017-06-18T11:57:00
+category: ["R Learning Notes"]
+tag: ["R Dplyr", "R function"]
+---
+
+
+
+
+
+<!-- BLOGDOWN-BODY-BEFORE -->
+
+<!-- /BLOGDOWN-BODY-BEFORE -->
+
+<p><code>filter</code> in <code>dplyr</code> will drop <code>NA</code>s when we filter a variable bigger or less than certain value.</p>
+<pre class="r"><code>require(dplyr)</code></pre>
+<pre><code>## Loading required package: dplyr</code></pre>
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>test &lt;- data.frame(value = c(rep(NA,3), -3:3))</code></pre>
+<div id="the-result-of-filter-function" class="section level1">
+<h1>The result of <code>filter</code> function</h1>
+<pre class="r"><code>dplyr::filter(test, value &gt; 0)</code></pre>
+<pre><code>##   value
+## 1     1
+## 2     2
+## 3     3</code></pre>
+</div>
+<div id="the-result-of-base-functions" class="section level1">
+<h1>The result of base functions</h1>
+<pre class="r"><code>test$value[test$value &gt; 0]</code></pre>
+<pre><code>## [1] NA NA NA  1  2  3</code></pre>
+</div>
+<div id="conclusion" class="section level1">
+<h1>Conclusion</h1>
+<p>If we use filter, the result would drop <code>NA</code> observations.</p>
+<p>if we use base functions, the <code>NA</code>s are remained.</p>
+</div>
