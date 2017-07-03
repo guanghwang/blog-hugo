@@ -1,0 +1,94 @@
+---
+title: Quick Subset Using data.table
+author: Guanghua Wang
+date: '2017-07-03'
+slug: quick-subset-data-table
+categories: ["R Learning Notes"]
+tags: ["R data.table"]
+summary: "In terms of speed, `,I` in `data.table` is the fastest."
+---
+
+
+
+
+
+<!-- BLOGDOWN-BODY-BEFORE -->
+
+<!-- /BLOGDOWN-BODY-BEFORE -->
+
+<pre class="r"><code>if (!require(data.table)) install.packages(&quot;data.table&quot;)</code></pre>
+<pre><code>## Loading required package: data.table</code></pre>
+<pre class="r"><code>library(dplyr)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:data.table&#39;:
+## 
+##     between, first, last</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>library(tidyr)
+library(data.table)
+data(population, package = &quot;tidyr&quot;)</code></pre>
+<p>I use <code>population</code> data from <code>tidyr</code> package as an example.</p>
+<pre class="r"><code>glimpse(population)</code></pre>
+<pre><code>## Observations: 4,060
+## Variables: 3
+## $ country    &lt;chr&gt; &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;Afgha...
+## $ year       &lt;int&gt; 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 200...
+## $ population &lt;int&gt; 17586073, 18415307, 19021226, 19496836, 19987071, 2...</code></pre>
+<pre class="r"><code>summary(population)</code></pre>
+<pre><code>##    country               year        population       
+##  Length:4060        Min.   :1995   Min.   :1.129e+03  
+##  Class :character   1st Qu.:1999   1st Qu.:6.029e+05  
+##  Mode  :character   Median :2004   Median :5.319e+06  
+##                     Mean   :2004   Mean   :3.003e+07  
+##                     3rd Qu.:2009   3rd Qu.:1.855e+07  
+##                     Max.   :2013   Max.   :1.386e+09</code></pre>
+<pre class="r"><code>class(population)</code></pre>
+<pre><code>## [1] &quot;tbl_df&quot;     &quot;tbl&quot;        &quot;data.frame&quot;</code></pre>
+<pre class="r"><code>populationDT &lt;- as.data.table(population)
+class(populationDT)</code></pre>
+<pre><code>## [1] &quot;data.table&quot; &quot;data.frame&quot;</code></pre>
+<div id="the-.sd-method-in-data.table" class="section level2">
+<h2>The .SD Method in <code>data.table</code></h2>
+<pre class="r"><code>t &lt;- proc.time()
+tmp1 &lt;- populationDT[
+  , .SD[population &lt; median(population)], by = c(&quot;country&quot;)
+]
+proc.time() - t</code></pre>
+<pre><code>##    user  system elapsed 
+##   0.052   0.008   0.055</code></pre>
+</div>
+<div id="the-.i-methond-in-data.table" class="section level2">
+<h2>The .I Methond in <code>data.table</code></h2>
+<pre class="r"><code>t &lt;- proc.time()
+tmp2 &lt;- populationDT[
+  populationDT[, .I[population &lt; median(population)], by = c(&quot;country&quot;)]$V1
+]
+proc.time() - t</code></pre>
+<pre><code>##    user  system elapsed 
+##   0.008   0.000   0.007</code></pre>
+</div>
+<div id="the-dplyr-method" class="section level2">
+<h2>The <code>dplyr</code> method</h2>
+<pre class="r"><code>t &lt;- proc.time()
+tmp3 &lt;- population %&gt;% 
+  group_by(country) %&gt;% 
+  filter(population &lt; median(population)) %&gt;% 
+  ungroup()
+proc.time() - t</code></pre>
+<pre><code>##    user  system elapsed 
+##   0.032   0.000   0.033</code></pre>
+</div>
+<div id="whether-is-the-fianl-data-identical" class="section level2">
+<h2>Whether Is the Fianl Data Identical?</h2>
+<pre class="r"><code>identical(tmp1, tmp2)</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<pre class="r"><code>setdiff(tmp2, tmp3)</code></pre>
+<pre><code>## Empty data.table (0 rows) of 3 cols: country,year,population</code></pre>
+<p>I got same data.frame by three different methods. In terms of speed, <code>,I</code> in <code>data.table</code> is the fastest.</p>
+</div>
