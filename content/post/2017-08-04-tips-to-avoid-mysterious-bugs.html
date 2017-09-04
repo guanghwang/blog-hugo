@@ -1,0 +1,24 @@
+---
+title: Tips to avoid mysterious bugs
+author: Guanghua Wang
+date: '2017-08-04'
+slug: tips-to-avoid-mysterious-bugs
+categories: []
+tags: []
+---
+
+
+
+
+
+<!-- BLOGDOWN-BODY-BEFORE -->
+
+<!-- /BLOGDOWN-BODY-BEFORE -->
+
+<p>Don’t use the same for the data.frame and variables in it.</p>
+<pre class="r"><code>library(data.table)</code></pre>
+<pre class="r"><code>a &lt;- data.table(a = c(1,2,3,1,2,3), b = c(&quot;a&quot;, &quot;b&quot;, &quot;a&quot;, &quot;b&quot;,&quot;a&quot;, &quot;b&quot;))</code></pre>
+<pre class="r"><code>b &lt;- a[b == &quot;b&quot;]</code></pre>
+<p><code>data.table</code> cannot distinguish which <code>b</code> is. <code>b</code> represents <strong>data.table</strong> <code>b</code> and the <strong>variable</strong> <code>b</code> in data.table <code>a</code>.</p>
+<pre class="r"><code>a[a %in% b$a]</code></pre>
+<pre><code>Error in b$a : $ operator is invalid for atomic vectors</code></pre>
